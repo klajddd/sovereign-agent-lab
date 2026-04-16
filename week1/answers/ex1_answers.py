@@ -24,11 +24,11 @@ PART_A_SANDWICH_CORRECT = True
 # Explain what you observed. Minimum 30 words.
 
 PART_A_EXPLANATION = """
-All three conditions produced correct answers, but the presentation style influenced which
-valid venue was picked. PLAIN (180 tokens) landed on The Haymarket Vaults, while XML (251
-tokens) and SANDWICH (289 tokens) both settled on The Albanach. The structure of the prompt
-steered the model's choice even though every condition was right — and it came at a cost:
-SANDWICH consumed 60% more tokens than PLAIN to reach the same conclusion.
+All three conditions came back correct, but how the prompt was laid out influenced which
+valid venue was selected. PLAIN (180 tokens) went with The Haymarket Vaults, while XML
+(251 tokens) and SANDWICH (289 tokens) both picked The Albanach. The prompt structure
+quietly steered the model's preference despite every condition being right — and it wasn't
+free: SANDWICH used 60% more tokens than PLAIN to arrive at the same answer.
 """
 
 # ── Part B ─────────────────────────────────────────────────────────────────
@@ -80,14 +80,13 @@ which suggests that careful prompt structure matters more on smaller models, not
 # "Context formatting matters most when..."
 
 CORE_LESSON = """
-Context formatting matters most when you are working with a less capable model and when
-the dataset contains several plausible-looking options. In this run, the large model
-(Llama 3.3 70B) split across conditions — PLAIN went with The Haymarket Vaults, while
-XML and SANDWICH both landed on The Albanach — yet all three were right. The small model
-(Gemma 2B) behaved differently: every condition pointed at The Haymarket Vaults, a
-uniform outcome the large model never produced. The structure of the prompt didn't just
-drive up token usage, it changed which valid venue the model latched onto — and that pull
-was noticeably stronger on the weaker model. In practice this means prompt layout is
-something you tune more carefully, not less, as you move toward leaner or cheaper models
-in a deployed system.
+Context formatting matters most when the model is less capable and when the data has
+several options that could plausibly be right. In this run, the large model (Llama 3.3
+70B) split across conditions — PLAIN chose The Haymarket Vaults, XML and SANDWICH both
+chose The Albanach — but all three were correct. The small model (Gemma 2B) did something
+different: all three conditions converged on The Haymarket Vaults, a uniform result the
+large model never produced. Formatting didn't just push up the token count, it shifted
+which valid venue the model anchored on — and that effect was stronger and more
+consistent on the weaker model. The practical takeaway is that prompt structure deserves
+more attention as you move toward smaller or cheaper models in a real system, not less.
 """

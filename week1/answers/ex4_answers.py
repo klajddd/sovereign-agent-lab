@@ -7,30 +7,52 @@ Fill this in after running exercise4_mcp_client.py.
 # ── Basic results ──────────────────────────────────────────────────────────
 
 # Tool names as shown in "Discovered N tools" output.
-TOOLS_DISCOVERED = []
+TOOLS_DISCOVERED = ["search_venues", "get_venue_details"]
 
-QUERY_1_VENUE_NAME    = "FILL_ME_IN"
-QUERY_1_VENUE_ADDRESS = "FILL_ME_IN"
-QUERY_2_FINAL_ANSWER  = "FILL_ME_IN"
+QUERY_1_VENUE_NAME    = "The Albanach"
+QUERY_1_VENUE_ADDRESS = "2 Hunter Square, Edinburgh"
+QUERY_2_FINAL_ANSWER  = "No venues in the known list can accommodate 300 guests with vegan options. The largest available venue with vegan options is The Albanach at 180 capacity, which still falls short of 300."
 
 # ── The experiment ─────────────────────────────────────────────────────────
 # Required: modify venue_server.py, rerun, revert.
 
-EX4_EXPERIMENT_DONE = None   # True or False
+EX4_EXPERIMENT_DONE = True
 
 # What changed, and which files did or didn't need updating? Min 30 words.
 EX4_EXPERIMENT_RESULT = """
-FILL ME IN
+Changing The Albanach's status from 'available' to 'full' in mcp_venue_server.py
+caused it to disappear from Query 1's results entirely — search_venues filters
+on status == 'available', so it was quietly excluded. The Haymarket Vaults became
+the only match returned.
+
+Query 2 (300 guests) was unaffected — it was already returning zero matches and
+continued to do so.
+
+Crucially, no client code changed. exercise4_mcp_client.py was not touched.
+research_agent.py was not touched. The agent discovered the updated tool state
+at runtime through MCP, got a different result back from the server, and
+reasoned accordingly — without knowing or caring that the data had changed.
+That's the point of the experiment: the tool layer and the agent layer are
+genuinely decoupled.
 """
 
 # ── MCP vs hardcoded ───────────────────────────────────────────────────────
 
-LINES_OF_TOOL_CODE_EX2 = 0   # count in exercise2_langgraph.py
-LINES_OF_TOOL_CODE_EX4 = 0   # count in exercise4_mcp_client.py
+LINES_OF_TOOL_CODE_EX2 = 0   # tools defined in venue_tools.py, not in the exercise file
+LINES_OF_TOOL_CODE_EX4 = 0   # tools defined in mcp_venue_server.py, discovered dynamically
 
 # What does MCP buy you beyond "the tools are in a separate file"? Min 30 words.
 MCP_VALUE_PROPOSITION = """
-FILL ME IN
+Putting tools in a separate file is just refactoring. MCP buys something
+different: any client that speaks the protocol can connect, regardless of
+language or framework. In this exercise a LangGraph agent and a Rasa action
+both connect to the same server without either knowing the other exists.
+
+When the venue data changes, you update mcp_venue_server.py once. Neither
+client needs to be redeployed, restarted, or even aware of the change — they
+discover the current tool state dynamically each time they connect. In the
+hardcoded Exercise 2 approach, adding a new tool means editing the agent's
+import list and restarting the process. With MCP you just add it to the server.
 """
 
 # ── PyNanoClaw architecture — SPECULATION QUESTION ─────────────────────────
@@ -39,42 +61,35 @@ FILL ME IN
 # grader reads that exact name. Don't rename it — but read the updated
 # prompt: the question is now about PyNanoClaw, the hybrid system the
 # final assignment will have you build.)
-#
-# This is a forward-looking, speculative question. You have NOT yet seen
-# the material that covers the planner/executor split, memory, or the
-# handoff bridge in detail — that is what the final assignment (releases
-# 2026-04-18) is for. The point of asking it here is to check that you
-# have read PROGRESS.md and can imagine how the Week 1 pieces grow into
-# PyNanoClaw.
-#
-# Read PROGRESS.md in the repo root. Then write at least 5 bullet points
-# describing PyNanoClaw as you imagine it at final-assignment scale.
-#
-# Each bullet should:
-#   - Name a component (e.g. "Planner", "Memory store", "Handoff bridge",
-#     "Rasa MCP gateway")
-#   - Say in one clause what that component does and which half of
-#     PyNanoClaw it lives in (the autonomous loop, the structured agent,
-#     or the shared layer between them)
-#
-# You are not being graded on getting the "right" architecture — there
-# isn't one right answer. You are being graded on whether your description
-# is coherent and whether you have thought about which Week 1 file becomes
-# which PyNanoClaw component.
-#
-# Example of the level of detail we want:
-#   - The Planner is a strong-reasoning model (e.g. Nemotron-3-Super or
-#     Qwen3-Next-Thinking) that takes the raw task and produces an ordered
-#     list of subgoals. It lives upstream of the ReAct loop in the
-#     autonomous-loop half of PyNanoClaw, so the Executor never sees an
-#     ambiguous task.
 
 WEEK_5_ARCHITECTURE = """
-- FILL ME IN
-- FILL ME IN
-- FILL ME IN
-- FILL ME IN
-- FILL ME IN
+- Planner (autonomous-loop half): a strong reasoning model upstream of the
+  ReAct loop that takes Rod's raw WhatsApp message and breaks it into ordered
+  subgoals before the Executor sees it, so the loop never has to handle an
+  ambiguous task mid-run.
+
+- Executor (autonomous-loop half): the research_agent.py ReAct loop from
+  Week 1, extended with real web search and file tools. Carries out the
+  subgoals the Planner produces, calls tools, handles failures, and either
+  returns a result or routes to the structured agent via the handoff bridge.
+
+- Shared MCP Tool Server (shared layer): the mcp_venue_server.py from Week 1,
+  grown to cover every capability both halves need — web search, venue lookups,
+  calendar, email. Both the autonomous loop and the Rasa agent discover tools
+  from here dynamically, which is what lets the hybrid system stay coherent
+  when tools are added or updated.
+
+- Handoff Bridge (shared layer): a bridge.handoff module that lets the
+  autonomous loop delegate a human conversation task to the Rasa structured
+  agent and receive the outcome back. When the pub manager calls, the loop
+  hands off rather than trying to handle it with a ReAct loop, and resumes
+  once the structured agent returns a result.
+
+- Structured Agent (Rasa CALM half): the exercise3_rasa/ confirmation agent
+  from Week 1, wired to the shared MCP server and extended with a RAG
+  knowledge base for questions flows.yml doesn't cover. Handles all
+  human-facing interactions where every word could create a legal or financial
+  commitment, then hands back to the loop when research is needed.
 """
 
 # ── The guiding question ───────────────────────────────────────────────────
@@ -82,5 +97,25 @@ WEEK_5_ARCHITECTURE = """
 # Must reference specific things you observed in your runs. Min 60 words.
 
 GUIDING_QUESTION_ANSWER = """
-FILL ME IN
+LangGraph belongs on the research problem and Rasa CALM belongs on the
+confirmation call. Running both exercises back to back made this feel less like
+a design principle and more like something you can just see.
+
+In Exercise 2 Task A, the LangGraph agent got a single brief and figured out the
+sequence on its own — checked The Albanach, skipped The Haymarket Vaults once it
+had a match, moved to catering costs, checked the weather, generated the flyer.
+Nobody told it the order. That's exactly what the research problem needs, because
+you can't script the steps in advance when availability, weather, and capacity all
+change at runtime.
+
+Swapping the two agents around falls apart quickly. In Exercise 3, when I
+interrupted the Rasa agent mid-booking with an out-of-scope question about
+parking, it deflected cleanly but then silently dropped the vegan_count slot —
+the booking confirmed with 0 vegan meals. A structured agent with no ability to
+reason around unexpected inputs would be useless for open-ended research. The
+other direction is just as broken: in Exercise 2 Scenario 3, the LangGraph agent
+reasoned freely about train times from its own training knowledge even though it
+had no relevant tool. That kind of improvisation is what makes it good at
+research; it's exactly what you don't want when an agent's words might constitute
+a legal commitment or lock Rod into a deposit he hasn't approved.
 """

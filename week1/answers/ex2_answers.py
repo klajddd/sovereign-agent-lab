@@ -157,11 +157,13 @@ exactly what the agent will do. With the LangGraph graph you can't.
 # Must reference a specific behaviour from your run.
 
 MOST_SURPRISING = """
-The most unexpected thing was in Task A — the agent never checked The Haymarket
-Vaults at all, even though the brief told it to check both venues. The Albanach
-came back available on the first try (capacity 180, vegan yes, status available)
-and the agent just moved on to catering, weather, and the flyer. Nobody told it
-to stop once it found a match; it worked that out on its own. That felt like a
-genuinely interesting moment — it did less than it was told because it understood
-what the task was actually trying to achieve, not just the literal instructions.
+The thing that caught me off guard in Task A was that the agent never checked
+The Haymarket Vaults, even though the brief explicitly said to check both venues.
+The Albanach came back on the first tool call with capacity 180, vegan yes, status
+available — and the agent just moved straight to catering costs, weather, and the
+flyer. No instruction said to stop once a venue was confirmed; it figured that out
+by itself. What struck me was that it did less work than it was told to, because
+it understood the goal rather than following the letter of the brief. That's the
+kind of behaviour that's useful in a research agent but would be alarming in a
+confirmation agent — you'd want to know exactly which steps ran and which didn't.
 """
