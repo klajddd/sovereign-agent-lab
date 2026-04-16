@@ -24,13 +24,11 @@ PART_A_SANDWICH_CORRECT = True
 # Explain what you observed. Minimum 30 words.
 
 PART_A_EXPLANATION = """
-All three conditions returned correct answers, but then formatting shifted which valid venue
-was selected. 
-PLAIN (180 tokens) chose The Haymarket Vaults, while both XML (251 tokens)
-and SANDWICH (289 tokens) chose The Albanach. 
-Structured formatting affected the model's preference even when all conditions were 
-correct. This cost more tokens — SANDWICH used 60% more tokens than PLAIN for the same 
-correct result.
+All three conditions produced correct answers, but the presentation style influenced which
+valid venue was picked. PLAIN (180 tokens) landed on The Haymarket Vaults, while XML (251
+tokens) and SANDWICH (289 tokens) both settled on The Albanach. The structure of the prompt
+steered the model's choice even though every condition was right — and it came at a cost:
+SANDWICH consumed 60% more tokens than PLAIN to reach the same conclusion.
 """
 
 # ── Part B ─────────────────────────────────────────────────────────────────
@@ -49,9 +47,12 @@ PART_B_CHANGED_RESULTS = False
 # Which distractor was more likely to cause a wrong answer, and why?
 # Minimum 20 words.
 PART_B_HARDEST_DISTRACTOR = """
-A venue that meets most but not all constraints — for example, one with capacity for
-160 but no vegan options — is harder to reject because the model must hold multiple
-criteria simultaneously and not anchor on the first plausible match.
+The Holyrood Arms (capacity=160, vegan=yes, status=full) is the trickier distractor. It
+ticks every box the question explicitly asks about — headcount and vegan options — and only
+falls short on availability, a field the question never mentions. The New Town Vault
+(capacity=162, vegan=no) is easier to rule out because the contradiction is right there in
+the data. Any model that focuses on the stated criteria and glosses over the status field
+will confidently land on The Holyrood Arms instead of the right answer.
 """
 
 # ── Part C ─────────────────────────────────────────────────────────────────
@@ -66,11 +67,11 @@ PART_C_SANDWICH_ANSWER = "The Haymarket Vaults"
 
 # Explain what Part C showed, or why it wasn't needed. Minimum 30 words.
 PART_C_EXPLANATION = """
-Part C ran on the small model (Gemma 2B) and all three conditions returned correct answers,
-but unlike the large model, XML and SANDWICH both converged on The Haymarket Vaults rather
-than The Albanach. This shows that structured formatting has a stronger steering effect on
-weaker models — the small model was more sensitive to how context was presented, suggesting
-that context engineering matters more, not less, as model capability decreases.
+Part C used the small model (Gemma 2B) and all three conditions still came back correct,
+but the pattern shifted. Where the large model split — PLAIN picking The Haymarket Vaults,
+XML and SANDWICH picking The Albanach — the small model locked onto The Haymarket Vaults
+across the board. The weaker model was more susceptible to how the context was laid out,
+which suggests that careful prompt structure matters more on smaller models, not less.
 """
 
 # ── Core lesson ────────────────────────────────────────────────────────────
@@ -79,10 +80,14 @@ that context engineering matters more, not less, as model capability decreases.
 # "Context formatting matters most when..."
 
 CORE_LESSON = """
-Context formatting matters most when the model is smaller or weaker, and when multiple
-valid answers exist that satisfy the constraints. With a large model, all three formats
-produced correct results. With the small model, structured formats visibly shifted which
-correct venue was selected. The implication for agent engineering is that prompt structure
-is not just cosmetic — it actively shapes model behaviour, especially in constrained or
-resource-limited deployments.
+Context formatting matters most when you are working with a less capable model and when
+the dataset contains several plausible-looking options. In this run, the large model
+(Llama 3.3 70B) split across conditions — PLAIN went with The Haymarket Vaults, while
+XML and SANDWICH both landed on The Albanach — yet all three were right. The small model
+(Gemma 2B) behaved differently: every condition pointed at The Haymarket Vaults, a
+uniform outcome the large model never produced. The structure of the prompt didn't just
+drive up token usage, it changed which valid venue the model latched onto — and that pull
+was noticeably stronger on the weaker model. In practice this means prompt layout is
+something you tune more carefully, not less, as you move toward leaner or cheaper models
+in a deployed system.
 """
